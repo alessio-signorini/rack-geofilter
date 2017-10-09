@@ -38,7 +38,7 @@ module Rack
   end
 
   def error_message
-    [451, {'Content-Type' => 'application/json'}, ["Service not available in country of origin\n"]]
+    [451, {'Content-Type' => 'plain/text'}, ["Service not available in country of origin\n"]]
   end
 
   end

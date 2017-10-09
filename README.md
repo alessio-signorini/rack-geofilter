@@ -27,6 +27,20 @@ To use with Rails, add to your ``config/application.rb`` the following line
 config.middleware.insert_before ActionDispatch::RemoteIp, Rack::Geofilter
 ```
 
+Then setup the environment variable ``BLOCKED_COUNTRIES`` with a comma separated
+list of the [ISO 3166-1 Alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+codes of the countries you want to block, e.g.,
+
+```ruby
+BLOCKED_COUNTRIES="UA,RU,JP,KP,KR"
+```
+
+This will block the traffic from those countries and return
+
+```
+451 Service not available in country of origin
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/alessio-signorini/rack-geofilter.
