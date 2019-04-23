@@ -10,7 +10,6 @@ class GeofilterTest < Minitest::Test
 
   def test_no_arg_or_env_and_not_tagged
 
-
     @app.expects(:call).once
 
     geofilter = Rack::Geofilter.new @app
@@ -26,6 +25,16 @@ class GeofilterTest < Minitest::Test
     geofilter = Rack::Geofilter.new @app, "RU,JP"
 
     geofilter.call({"HTTP_CF_IPCOUNTRY" => "RU"})
+
+  end
+
+  def test_with_arg_but_no_env_with_request_from_no_country
+
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({})
 
   end
 
