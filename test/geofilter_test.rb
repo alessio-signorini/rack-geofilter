@@ -2,11 +2,103 @@ require "test_helper"
 
 class GeofilterTest < Minitest::Test
 
-  def test_ing
+  def setup
+    @app = mock()
+  end
 
-    ENV['really?'] = "yes"
+  def test_no_arg_or_env_and_not_tagged
 
-    assert_equal "yes", ENV["really?"]
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app
+
+    geofilter.call({})
+
+  end
+
+  def test_with_arg_but_no_env_with_request_from_banned_country
+
+    ENV["BLOCKED_COUNTRIES"] = nil
+
+    @app.expects(:call).never
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "RU"})
+
+  end
+
+  def test_with_env_but_no_arg_with_request_from_banned_country
+
+    ENV["BLOCKED_COUNTRIES"] = "KR"
+
+    @app.expects(:call).never
+
+    geofilter = Rack::Geofilter.new @app
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "KR"})
+
+  end
+
+  def test_with_arg_and_env_with_request_from_banned_country
+
+    ENV["BLOCKED_COUNTRIES"] = "KR"
+
+    @app.expects(:call).never
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "KR"})
+
+  end
+
+  def test_with_arg_and_env_with_request_from_other_banned_country
+
+    ENV["BLOCKED_COUNTRIES"] = "KR"
+
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "RU"})
+
+  end
+
+
+  def test_with_arg_but_no_env_with_request_from_ok_country
+
+    ENV["BLOCKED_COUNTRIES"] = nil
+
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "US"})
+
+  end
+
+  def test_with_env_but_no_arg_with_request_from_ok_country
+
+    ENV["BLOCKED_COUNTRIES"] = "KR"
+
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "US"})
+
+  end
+
+  def test_with_arg_and_env_with_request_from_ok_country
+
+    ENV["BLOCKED_COUNTRIES"] = "KR"
+
+    @app.expects(:call).once
+
+    geofilter = Rack::Geofilter.new @app, "RU,JP"
+
+    geofilter.call({"HTTP_CF_IPCOUNTRY" => "US"})
+
   end
 
 end

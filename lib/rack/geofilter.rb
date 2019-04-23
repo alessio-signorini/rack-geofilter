@@ -1,8 +1,12 @@
 module Rack
   class Geofilter
 
-  def initialize app
+  BLOCKED_COUNTRIES_KEY = 'BLOCKED_COUNTRIES'
+  CLOUDFLARE_IPCOUNTRY_KEY = 'HTTP_CF_IPCOUNTRY'
+
+  def initialize app, country_string=nil
     @app = app
+    setup_filter(ENV[BLOCKED_COUNTRIES_KEY] || country_string)
   end
 
   def call env
@@ -15,26 +19,17 @@ module Rack
 
   private
 
-  def filter_enabled?
-    ENV.has_key?('BLOCKED_COUNTRIES')
-  end
-
-  def countries_blocked
-    ENV['BLOCKED_COUNTRIES'].split(',')
-  end
-
-  def origin_country(env)
-    env['HTTP_CF_IPCOUNTRY']
-  end
-
-  def request_tagged?(env)
-    env.has_key?('HTTP_CF_IPCOUNTRY')
+  def setup_filter country_string
+    if !country_string.nil? && country_string != ""
+      @blocked_countries = country_string.split(',').map(&:strip).uniq.compact
+      @filter_enabled = @blocked_countries.count > 0
+    end
   end
 
   def should_block?(env)
-    if filter_enabled? && request_tagged?(env)
-      countries_blocked.include? origin_country(env)
-    end
+    return unless @filter_enabled
+
+    @blocked_countries.include? env[CLOUDFLARE_IPCOUNTRY_KEY]
   end
 
   def error_message
