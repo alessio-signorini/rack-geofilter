@@ -3,10 +3,13 @@ require "test_helper"
 class GeofilterTest < Minitest::Test
 
   def setup
+    ENV["BLOCKED_COUNTRIES"] = nil
+
     @app = mock()
   end
 
   def test_no_arg_or_env_and_not_tagged
+
 
     @app.expects(:call).once
 
@@ -17,8 +20,6 @@ class GeofilterTest < Minitest::Test
   end
 
   def test_with_arg_but_no_env_with_request_from_banned_country
-
-    ENV["BLOCKED_COUNTRIES"] = nil
 
     @app.expects(:call).never
 
@@ -66,8 +67,6 @@ class GeofilterTest < Minitest::Test
 
 
   def test_with_arg_but_no_env_with_request_from_ok_country
-
-    ENV["BLOCKED_COUNTRIES"] = nil
 
     @app.expects(:call).once
 
