@@ -23,7 +23,7 @@ module Rack
 
   def setup_blocked_countries country_string
 
-    if !country_string.nil? && country_string != ""
+    if !country_string.nil? && country_string.strip != ""
       @blocked_countries = Hash[country_string.downcase.split(',').map(&:strip).uniq.compact.collect{|c| [c, true]} ].freeze
     else
       @blocked_countries = {}.freeze
